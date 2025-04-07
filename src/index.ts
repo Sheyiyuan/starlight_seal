@@ -16,7 +16,7 @@ function main() {
       "diceSides": 6,
       "enableTip": "已切换至繁星物语Starlight扩展",
       "keys": ["sl", "starlight", "繁星物语"],
-      "relatedExt": ["starlight","coc7"]
+      "relatedExt": ["starlight"]
     },
 
     // sn相关内容，可使用.sn sl 自动设置名片
@@ -35,15 +35,7 @@ function main() {
 
     // 默认值
     "defaults": {
-      "情绪": 0,
       "能量": 0,
-      "0": 0,
-      "1": 0,
-      "2": 0,
-      "3": 0,
-      "4": 0,
-      "5": 0,
-      "6": 0
     },
     // 同义词，存卡和设置属性时，所有右边的词会被转换为左边的词，不分大小写
     "alias": {
@@ -109,9 +101,9 @@ function main() {
           seal.replyToSender(ctx,msg,`请先使用.st录入角色骰子。`)
           return seal.ext.newCmdExecuteResult(true);
         }
-        const dice = SlDice.fromJSON(ext.storageGet(diceJson));
+        const dice = SlDice.fromJSON(diceJson);
         const result = dice.roll(empathy,modifyValue);
-        let replyText = `<${ctx.player.name}>的检定出目为：${result[0]}\n最终结果为：${result[3]}`;
+        let replyText = `<${ctx.player.name}>的检定出目为:\n${result[0]} ${dice.getEffect(result[0])}\n最终结果为：${result[3]}`;
         // 结算能量
         let energy = seal.vars.intGet(ctx, "能量")[0];
         const emotion = seal.vars.strGet(ctx, "情绪")[0];
@@ -149,31 +141,33 @@ function main() {
         ret.showHelp = true;
         return ret;
       }
+      case 'show': {
+        let energy = seal.vars.intGet(ctx, "能量")[0];
+        const diceJson: string = seal.vars.strGet(ctx, "*dice")[0];
+        const dice = SlDice.fromJSON(diceJson);
+        seal.replyToSender(ctx,msg,`<${ctx.player.name}>的角色信息：\n情绪:${seal.vars.strGet(ctx,"情绪")[0]}  能量:${energy}/6\n${dice.toString()}`);
+        return seal.ext.newCmdExecuteResult(true);
+      }
       default: {
-          const dice: SlDice = new SlDice(6);
-          for (let i = 0; i <= 12; i += 2) {
-            try {
-              cmdArgs.getArgN(i);
-            }
-            catch(e) {
-              console.log(e)
-              break;
-            }
-            const indexStr: string = cmdArgs.getArgN(i);
-            if (isNaN(Number(indexStr))) {
-              continue;
-            }
-            const index = Number(indexStr);
-            if (index < 1 || index > 6) {
-              continue;
-            }
-            const description: string = cmdArgs.getArgN(i + 1);
-            dice.edit(index, description, true);
-            seal.vars.strSet(ctx, indexStr, description);
+        seal.vars.strSet(ctx, "情绪", "平静");
+        const dice: SlDice = new SlDice(6);
+        const args  = cmdArgs.args;
+        for (let i = 0; i < args.length; i += 2) {
+          const indexStr: string = args[i];
+          if (isNaN(Number(indexStr))) {
+            continue;
           }
-          seal.vars.strSet(ctx, "*dice", JSON.stringify(dice));
-          seal.replyToSender(ctx, msg, `已录入<${ctx.player.name}>的角色骰子：\n${dice.toString()}`);
-          return seal.ext.newCmdExecuteResult(true);
+          const index = Number(indexStr);
+          if (index < 1 || index > 6) {
+            continue;
+          }
+          const description: string = args[i+1];
+          dice.edit(index, description, true);
+          seal.vars.strSet(ctx, indexStr, description);
+        }
+        seal.vars.strSet(ctx, "*dice", JSON.stringify(dice));
+        seal.replyToSender(ctx, msg, `已录入<${ctx.player.name}>的角色骰子：\n${dice.toString()}`);
+        return seal.ext.newCmdExecuteResult(true);
       }
     }
   }
@@ -260,21 +254,21 @@ function main() {
       }
       default: {
         const index:number = Number(val);
-        if (isNaN(index) || index < 0 || index > 6){
-          seal.replyToSender(ctx,msg,`创伤所在位置必须为0-6之间的整数。`);
+        if (isNaN(index) || index < 1 || index > 6){
+          seal.replyToSender(ctx,msg,`创伤所在位置必须为1-6之间的整数。`);
           return seal.ext.newCmdExecuteResult(true);
         }
         const description:string = cmdArgs.getArgN(2);
 
         const diceJson: string = seal.vars.strGet(ctx, "*dice")[0];
-        const dice = SlDice.fromJSON(ext.storageGet(diceJson));
+        const dice = SlDice.fromJSON(diceJson);
         if (dice.table[index].status !==0){
           seal.replyToSender(ctx,msg,`该位置已经有创伤，无法再次设置创伤。`);
           return seal.ext.newCmdExecuteResult(true);
         }
         dice.hurt(index,description);
         seal.vars.strSet(ctx, "*dice", JSON.stringify(dice));
-        seal.replyToSender(ctx,msg,`已设置<${ctx.player.name}>在第${index+1}个位置的创伤为：${description}`);
+        seal.replyToSender(ctx,msg,`已设置<${ctx.player.name}>在第${index}个位置的创伤为：${description}`);
         return seal.ext.newCmdExecuteResult(true);
       }
     }
@@ -300,19 +294,19 @@ function main() {
         return ret;
       }
       default: {
-        let indexs:number[] = [];
-        for (let i = 1; i < cmdArgs.args.length; i++) {
-          const index:number = Number(cmdArgs.getArgN(i));
+        let indexes:number[] = [];
+        for (let i = 0; i <= cmdArgs.args.length; i++) {
+          const index:number = Number(cmdArgs.args[i]);
           if (isNaN(index) || index < 0 || index > 6){
             continue;
           }
-          indexs.push(index);
+          indexes.push(index);
         }
         const diceJson: string = seal.vars.strGet(ctx, "*dice")[0];
-        const dice = SlDice.fromJSON(ext.storageGet(diceJson));
-        dice.heal(indexs);
+        const dice = SlDice.fromJSON(diceJson);
+        dice.heal(indexes);
         seal.vars.strSet(ctx, "*dice", JSON.stringify(dice));
-        seal.replyToSender(ctx,msg,`已治疗<${ctx.player.name}>的所有创伤。`);
+        seal.replyToSender(ctx,msg,`已治疗<${ctx.player.name}>指定面的所有创伤。`);
         return seal.ext.newCmdExecuteResult(true);
       }
     }
@@ -339,9 +333,9 @@ function main() {
           return seal.ext.newCmdExecuteResult(true);
         }
         const targetDiceJson = seal.vars.strGet(mctx, "*dice")[0];
-        const targetDice = SlDice.fromJSON(ext.storageGet(targetDiceJson));
+        const targetDice = SlDice.fromJSON(targetDiceJson);
         const diceJson: string = seal.vars.strGet(ctx, "*dice")[0];
-        const dice = SlDice.fromJSON(ext.storageGet(diceJson));
+        const dice = SlDice.fromJSON(diceJson);
         const target = Number(cmdArgs.getArgN(2));
         const self = Number(cmdArgs.getArgN(3));
         if (isNaN(target) || target < 0 || target > 6||isNaN(self) || self < 0 || self > 6){
@@ -350,7 +344,7 @@ function main() {
         }
         dice.copy(targetDice, target, self);
         seal.vars.strSet(ctx, "*dice", JSON.stringify(dice));
-        seal.replyToSender(ctx,msg,`已复制<${mctx.player.name}>的第${target+1}个位置的共情面到<${ctx.player.name}>的第${self+1}个位置。`);
+        seal.replyToSender(ctx,msg,`已复制<${mctx.player.name}>的第${target}个位置的共情面到<${ctx.player.name}>的第${self}个位置。`);
         return seal.ext.newCmdExecuteResult(true);
       }
     }
@@ -364,6 +358,10 @@ function main() {
   ext.cmdMap['繁星物语'] = cmdDoc;
   ext.cmdMap['st'] = cmdSt;
   ext.cmdMap['emo'] = cmdEmote;
+  ext.cmdMap['en'] = cmdEn;
+  ext.cmdMap['hurt'] = cmdHurt;
+  ext.cmdMap['heal'] = cmdHeal;
+  ext.cmdMap['copy'] = cmdCopy;
 }
 
 main();
