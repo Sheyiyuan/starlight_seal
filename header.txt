@@ -1,0 +1,10 @@
+// ==UserScript==
+// @name         Starlight
+// @author       Sheyiyuan
+// @version      2.0.0
+// @description  《繁星物语》规则的海豹插件
+// @timestamp    1744036082710
+// 2025/04/07
+// @license      MIT
+// @homepageURL  https://github.com/Sheyiyuan/starlight_seal
+// ==/UserScript==
