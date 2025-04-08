@@ -200,6 +200,10 @@ function main() {
       default: {
         let emotion = val;
         emotion = EmotionFmt[emotion.toLowerCase()];
+        if (emotion === undefined){
+          seal.replyToSender(ctx,msg,`未知的情绪，请检查输入。`);
+          return seal.ext.newCmdExecuteResult(true);
+        }
         seal.vars.strSet(ctx, "情绪", emotion);
         seal.replyToSender(ctx,msg,`已设置<${ctx.player.name}>的情绪为：${emotion}`);
         return seal.ext.newCmdExecuteResult(true);
@@ -267,6 +271,10 @@ function main() {
         const description:string = cmdArgs.getArgN(2);
 
         const diceJson: string = seal.vars.strGet(ctx, "*dice")[0];
+        if (diceJson === ""){
+          seal.replyToSender(ctx,msg,`请先使用.st录入角色骰子。`);
+          return seal.ext.newCmdExecuteResult(true);
+        }
         const dice = SlDice.fromJSON(diceJson);
         if (dice.table[index].status !==0){
           seal.replyToSender(ctx,msg,`该位置已经有创伤，无法再次设置创伤。`);
