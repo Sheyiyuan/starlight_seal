@@ -151,7 +151,8 @@ function main() {
       default: {
         seal.vars.strSet(ctx, "情绪", "平静");
         const dice: SlDice = new SlDice(6);
-        const args  = cmdArgs.args;
+        const args:string[]  = cmdArgs.args;
+        let stCount:number = 0;
         for (let i = 0; i < args.length; i += 2) {
           const indexStr: string = args[i];
           if (isNaN(Number(indexStr))) {
@@ -164,8 +165,13 @@ function main() {
           const description: string = args[i+1];
           dice.edit(index, description, true);
           seal.vars.strSet(ctx, indexStr, description);
+          stCount += 1;
         }
         seal.vars.strSet(ctx, "*dice", JSON.stringify(dice));
+        if (stCount === 0) {
+          seal.replyToSender(ctx, msg, `未录入<${ctx.player.name}>的角色骰子，请检查格式`);
+          return seal.ext.newCmdExecuteResult(true);
+        }
         seal.replyToSender(ctx, msg, `已录入<${ctx.player.name}>的角色骰子：\n${dice.toString()}`);
         return seal.ext.newCmdExecuteResult(true);
       }
