@@ -17,6 +17,11 @@ export function D(n: number, x: number, k = 1, p = 0, c = 0) {
   return sum * k + c;
 }
 
+export function SetNameCard(ctx:seal.MsgContext){
+  const nameCard = seal.format(ctx,"{$t玩家_RAW} 情绪:{情绪} 能量:{能量}/6")
+  seal.setPlayerGroupCard(ctx,nameCard);
+}
+
 /**
  * 处理sl参数，有符号被视为修改值，无符号被视为共情面
  * @param params 传入的参数
@@ -25,7 +30,7 @@ export function D(n: number, x: number, k = 1, p = 0, c = 0) {
 export function dealSlParams(params: string[]): [number[], number[]] {
   const modify:number[] = [];
   const empathy:number[] = [];
-  for ( let k of params) {
+  for ( let k:number=0;k<params.length;k++) {
     if (isNaN(Number(params[k]))){
       continue;
     }

@@ -1,5 +1,5 @@
 import {EmotionFmt, HelpDoc} from "./TR";
-import {dealSlParams, SlDice} from "./until";
+import {dealSlParams, SetNameCard, SlDice} from "./until";
 
 function main() {
   // 注册规则
@@ -122,6 +122,7 @@ function main() {
         replyText += `\n本次行动获得${energyDelta}点能量，当前能量值为：${energy}/6`;
         seal.vars.intSet(ctx, "能量", energy);
         seal.replyToSender(ctx,msg,replyText);
+        SetNameCard(ctx);
         return seal.ext.newCmdExecuteResult(true);
       }
     }
@@ -173,6 +174,7 @@ function main() {
           return seal.ext.newCmdExecuteResult(true);
         }
         seal.replyToSender(ctx, msg, `已录入<${ctx.player.name}>的角色骰子：\n${dice.toString()}`);
+        SetNameCard(ctx);
         return seal.ext.newCmdExecuteResult(true);
       }
     }
@@ -205,6 +207,7 @@ function main() {
           return seal.ext.newCmdExecuteResult(true);
         }
         seal.vars.strSet(ctx, "情绪", emotion);
+        SetNameCard(ctx);
         seal.replyToSender(ctx,msg,`已设置<${ctx.player.name}>的情绪为：${emotion}`);
         return seal.ext.newCmdExecuteResult(true);
       }
@@ -237,6 +240,7 @@ function main() {
           return seal.ext.newCmdExecuteResult(true);
         }
         seal.vars.intSet(ctx, "能量", energy);
+        SetNameCard(ctx);
         seal.replyToSender(ctx,msg,`已设置<${ctx.player.name}>的能量值为：${energy}/6`);
         return seal.ext.newCmdExecuteResult(true);
       }
@@ -376,6 +380,7 @@ function main() {
   ext.cmdMap['hurt'] = cmdHurt;
   ext.cmdMap['heal'] = cmdHeal;
   ext.cmdMap['copy'] = cmdCopy;
+  ext.cmdMap['cp'] = cmdCopy;
 }
 
 main();
