@@ -9,7 +9,7 @@
 ## 安装说明
 1. 从[release](https://github.com/Sheyiyuan/starlight_seal/releases)页面下载编译后的js文件。
 2. 在海豹的js插件管理中上传插件并从载。
-3. 重启游戏以激活扩展。
+3. 重载插件以激活扩展。
 
 ## 使用方法
 ### 前置条件
@@ -37,6 +37,9 @@
 
 ## 许可协议
 本扩展遵循 [MIT](https://opensource.org/licenses/MIT) 许可协议。详细信息请查看 [LICENSE](./LICENSE)。
+
+## 致谢
+感谢由sealdice社区的[插件开发模版](https://github.com/sealdice/sealdice-js-ext-template)提供支持和帮助。
 
 ## 感谢语
 感谢您使用本扩展！希望它能为您带来愉快的游戏体验。
