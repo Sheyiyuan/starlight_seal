@@ -7,7 +7,6 @@
 2.0.0
 
 ## 安装说明
-详细说明如何安装此扩展，例如：
 1. 从[release](https://github.com/Sheyiyuan/starlight_seal/releases)页面下载编译后的js文件。
 2. 在海豹的js插件管理中上传插件并从载。
 3. 重启游戏以激活扩展。
